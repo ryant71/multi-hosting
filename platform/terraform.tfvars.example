@@ -1,0 +1,39 @@
+# Example terraform.tfvars file
+# Copy this to terraform.tfvars and fill in your values
+
+bucket_name   = "my-multi-site-bucket-name"
+hosted_zone_id = "Z1EXAMPLE123456"
+
+# GitHub Actions OIDC Configuration (Recommended)
+enable_oidc      = true
+github_repository = "your-username/your-repo-name"
+
+# Traditional IAM User (Fallback - not recommended for production)
+create_iam_user = false
+
+websites = [
+  {
+    fqdn        = "hiredgnu.net"
+    domain_name = "hiredgnu.net"
+    path_prefix = "hiredgnu"
+    zone_id     = "Z1HIREDGNUZONE123"  # Route53 hosted zone ID for hiredgnu.net
+  },
+  {
+    fqdn        = "crowded.spot"
+    domain_name = "crowded.spot"
+    path_prefix = "crowded.spot"
+    zone_id     = "Z2CROWDEDSPOT456"  # Route53 hosted zone ID for crowded.spot
+  },
+  {
+    fqdn        = "example.com"
+    domain_name = "example.com"
+    path_prefix = "example"
+    zone_id     = "Z3EXAMPLEZONE789"  # Route53 hosted zone ID for example.com
+  },
+  {
+    fqdn        = "blog.anotherdomain.com"
+    domain_name = "anotherdomain.com"
+    path_prefix = "blog"
+    zone_id     = "Z4ANOTHERDOMAIN012"  # Route53 hosted zone ID for anotherdomain.com
+  }
+]

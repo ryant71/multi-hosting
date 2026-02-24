@@ -1,0 +1,170 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-infrastructure:
+    name: Lint Infrastructure
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.7
+
+    - name: Terraform Format Check
+      run: |
+        cd platform
+        terraform fmt -check
+
+    - name: Terraform Validate
+      run: |
+        cd platform
+        terraform validate
+
+    - name: Terraform Security Scan
+      uses: aquasecurity/tfsec-action@v1.0.0
+      with:
+        directory: platform
+
+  test-crowded-spot:
+    name: Test Crowded.Spot Site
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Validate HTML
+      run: |
+        cd sites/crowded.spot
+        if [ -f "index.html" ]; then
+          echo "✓ index.html exists"
+        else
+          echo "✗ index.html missing"
+          exit 1
+        fi
+        
+        # Basic HTML validation
+        if grep -q "<!DOCTYPE html>" index.html; then
+          echo "✓ HTML doctype found"
+        else
+          echo "✗ HTML doctype missing"
+          exit 1
+        fi
+
+    - name: Check CSS and JS
+      run: |
+        cd sites/crowded.spot
+        if [ -f "assets/css/style.css" ]; then
+          echo "✓ CSS file exists"
+        else
+          echo "✗ CSS file missing"
+          exit 1
+        fi
+        
+        if [ -f "assets/js/main.js" ]; then
+          echo "✓ JS file exists"
+        else
+          echo "✗ JS file missing"
+          exit 1
+        fi
+
+  test-hiredgnu-net:
+    name: Test HiredGnu.net Site
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Validate Pelican Structure
+      run: |
+        cd sites/hiredgnu.net/src
+        
+        if [ -f "pelicanconf.py" ]; then
+          echo "✓ pelicanconf.py exists"
+        else
+          echo "✗ pelicanconf.py missing"
+          exit 1
+        fi
+        
+        if [ -d "content" ]; then
+          echo "✓ content directory exists"
+        else
+          echo "✗ content directory missing"
+          exit 1
+        fi
+
+    - name: Test Pelican Build
+      run: |
+        cd sites/hiredgnu.net/src
+        pip install pelican markdown
+        make clean
+        make html
+        
+        if [ -f "output/index.html" ]; then
+          echo "✓ Pelican build successful"
+        else
+          echo "✗ Pelican build failed"
+          exit 1
+        fi
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  validate-links:
+    name: Validate Links
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check Internal Links
+      run: |
+        echo "Checking internal links in crowded.spot..."
+        cd sites/crowded.spot
+        if grep -q "assets/" index.html; then
+          echo "✓ Internal asset references found"
+        fi
+        
+        echo "Checking Pelican site structure..."
+        cd ../hiredgnu.net/src
+        if [ -d "content" ] && [ "$(ls -A content)" ]; then
+          echo "✓ Content directory has files"
+        else
+          echo "⚠ Content directory is empty"
+        fi

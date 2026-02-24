@@ -1,0 +1,130 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'platform/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'platform/**' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - prod
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.5.7
+
+jobs:
+  terraform:
+    name: Terraform Plan/Apply
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Terraform Init
+      run: |
+        cd platform
+        terraform init -input=false
+
+    - name: Terraform Format Check
+      run: |
+        cd platform
+        terraform fmt -check
+
+    - name: Terraform Validate
+      run: |
+        cd platform
+        terraform validate
+
+    - name: Terraform Plan
+      run: |
+        cd platform
+        terraform plan -input=false -out=tfplan
+      env:
+        TF_VAR_bucket_name: ${{ vars.TF_VAR_BUCKET_NAME }}
+        TF_VAR_hosted_zone_id: ${{ vars.TF_VAR_HOSTED_ZONE_ID }}
+
+    - name: Terraform Plan Summary
+      uses: actions/github-script@v7
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const fs = require('fs');
+          const plan = fs.readFileSync('platform/tfplan', 'utf8');
+          console.log('Terraform plan completed');
+          console.log('Plan output available in workflow logs');
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        cd platform
+        terraform apply -input=false -auto-approve tfplan
+      env:
+        TF_VAR_bucket_name: ${{ vars.TF_VAR_BUCKET_NAME }}
+        TF_VAR_hosted_zone_id: ${{ vars.TF_VAR_HOSTED_ZONE_ID }}
+
+    - name: Terraform Apply (Manual)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        cd platform
+        terraform apply -input=false -auto-approve tfplan
+      env:
+        TF_VAR_bucket_name: ${{ vars.TF_VAR_BUCKET_NAME }}
+        TF_VAR_hosted_zone_id: ${{ vars.TF_VAR_HOSTED_ZONE_ID }}
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: terraform-plan
+        path: platform/tfplan
+        retention-days: 30
+
+    - name: Get Terraform Outputs
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      id: terraform-outputs
+      run: |
+        cd platform
+        echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+        echo "cloudfront_distribution=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+        echo "certificate_arn=$(terraform output -raw certificate_arn)" >> $GITHUB_OUTPUT
+
+    - name: Update Environment Variables
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const outputs = {
+            S3_BUCKET: '${{ steps.terraform-outputs.outputs.s3_bucket }}',
+            CLOUDFRONT_DISTRIBUTION: '${{ steps.terraform-outputs.outputs.cloudfront_distribution }}',
+            CERTIFICATE_ARN: '${{ steps.terraform-outputs.outputs.certificate_arn }}'
+          };
+          
+          console.log('Infrastructure deployed successfully!');
+          console.log('S3 Bucket:', outputs.S3_BUCKET);
+          console.log('CloudFront Distribution:', outputs.CLOUDFRONT_DISTRIBUTION);
+          console.log('Certificate ARN:', outputs.CERTIFICATE_ARN);

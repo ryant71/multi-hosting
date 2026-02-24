@@ -1,0 +1,190 @@
+name: Deploy HiredGnu.net Site
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: [ 'sites/hiredgnu.net/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'sites/hiredgnu.net/**' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - prod
+
+env:
+  AWS_REGION: us-east-1
+  SITE_NAME: hiredgnu.net
+
+jobs:
+  deploy:
+    name: Build and Deploy Site
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get Infrastructure Outputs
+      id: infra
+      run: |
+        if [ -f "platform/terraform.tfstate" ]; then
+          cd platform
+          echo "s3_bucket=$(terraform output -raw s3_bucket_name 2>/dev/null || echo '${{ vars.S3_BUCKET_NAME }}')" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo '${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}')" >> $GITHUB_OUTPUT
+        else
+          echo "s3_bucket=${{ vars.S3_BUCKET_NAME }}" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution=${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Validate Pelican Structure
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        if [ ! -f "pelicanconf.py" ]; then
+          echo "Error: pelicanconf.py not found"
+          exit 1
+        fi
+        if [ ! -d "content" ]; then
+          echo "Error: content directory not found"
+          exit 1
+        fi
+
+    - name: Install Pelican and Dependencies
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        pip install pelican markdown beautifulsoup4 htmlminifier
+
+    - name: Build Pelican Site
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        
+        # Clean previous build
+        make clean
+        
+        # Build the site
+        make html
+        
+        # Verify build was successful
+        if [ ! -f "output/index.html" ]; then
+          echo "Error: Build failed - index.html not found in output"
+          exit 1
+        fi
+        
+        echo "✓ Pelican site built successfully"
+
+    - name: Optimize HTML Files
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        find output -name '*.html' -exec htmlminifier \
+          --collapse-whitespace \
+          --remove-comments \
+          --minify-css true \
+          --minify-js true \
+          -o {} {} \;
+        echo "✓ HTML files optimized"
+
+    - name: Deploy to S3
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        
+        # Sync files to S3 with proper cache headers
+        aws s3 sync output/ "s3://${{ steps.infra.outputs.s3_bucket }}/${{ env.SITE_NAME }}/" \
+          --delete \
+          --cache-control "max-age=31536000,public" \
+          --exclude "*.html" \
+          --include "*.html" \
+          --cache-control "max-age=0,no-cache"
+        
+        echo "✓ Files synced to S3 successfully"
+
+    - name: Invalidate CloudFront Cache
+      if: steps.infra.outputs.cloudfront_distribution != ''
+      run: |
+        INVALIDATION_ID=$(aws cloudfront create-invalidation \
+          --distribution-id "${{ steps.infra.outputs.cloudfront_distribution }}" \
+          --paths "/${{ env.SITE_NAME }}/*" \
+          --query 'Invalidation.Id' \
+          --output text)
+        
+        echo "✓ CloudFront cache invalidation created (ID: ${INVALIDATION_ID})"
+        
+        # Wait for invalidation to complete
+        aws cloudfront wait invalidation-completed \
+          --distribution-id "${{ steps.infra.outputs.cloudfront_distribution }}" \
+          --id "${INVALIDATION_ID}"
+
+    - name: Verify Deployment
+      run: |
+        # Check if files exist in S3
+        echo "Verifying deployment..."
+        
+        if aws s3 ls "s3://${{ steps.infra.outputs.s3_bucket }}/${{ env.SITE_NAME }}/index.html" > /dev/null 2>&1; then
+          echo "✓ index.html found in S3"
+        else
+          echo "✗ index.html not found in S3"
+          exit 1
+        fi
+        
+        echo "✓ Deployment verification completed"
+
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Site deployed successfully!"
+        echo "📍 Site: ${{ env.SITE_NAME }}"
+        echo "🌐 URL: https://${{ env.SITE_NAME }}"
+        echo "📦 S3 Bucket: ${{ steps.infra.outputs.s3_bucket }}"
+        echo "☁️ CloudFront Distribution: ${{ steps.infra.outputs.cloudfront_distribution }}"
+        echo "📝 Built with Pelican"
+
+  preview:
+    name: Preview Changes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Pelican and Dependencies
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        pip install pelican markdown beautifulsoup4
+
+    - name: Build Preview
+      run: |
+        cd sites/${{ env.SITE_NAME }}/src
+        make clean
+        make html
+        echo "✓ Preview build completed"
+
+    - name: Show Changes
+      run: |
+        echo "Changes to be deployed for ${{ env.SITE_NAME }}:"
+        echo ""
+        git diff --name-only origin/main HEAD -- sites/${{ env.SITE_NAME }}/
+        echo ""
+        echo "Build output files:"
+        find sites/${{ env.SITE_NAME }}/src/output/ -type f | head -20

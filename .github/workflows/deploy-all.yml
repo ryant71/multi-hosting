@@ -1,0 +1,205 @@
+name: Deploy All Sites
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'platform/**', 'sites/**' ]
+  workflow_dispatch:
+    inputs:
+      deploy_infrastructure:
+        description: 'Deploy infrastructure changes'
+        required: true
+        default: false
+        type: boolean
+      deploy_sites:
+        description: 'Deploy site changes'
+        required: true
+        default: true
+        type: boolean
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+        - dev
+        - prod
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.5.7
+
+jobs:
+  infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event.inputs.deploy_infrastructure == 'true' || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'platform/'))
+    
+    outputs:
+      s3_bucket: ${{ steps.outputs.outputs.s3_bucket }}
+      cloudfront_distribution: ${{ steps.outputs.outputs.cloudfront_distribution }}
+      certificate_arn: ${{ steps.outputs.outputs.certificate_arn }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Terraform Init
+      run: |
+        cd platform
+        terraform init -input=false
+
+    - name: Terraform Plan
+      run: |
+        cd platform
+        terraform plan -input=false -out=tfplan
+      env:
+        TF_VAR_bucket_name: ${{ vars.TF_VAR_BUCKET_NAME }}
+        TF_VAR_hosted_zone_id: ${{ vars.TF_VAR_HOSTED_ZONE_ID }}
+
+    - name: Terraform Apply
+      run: |
+        cd platform
+        terraform apply -input=false -auto-approve tfplan
+      env:
+        TF_VAR_bucket_name: ${{ vars.TF_VAR_BUCKET_NAME }}
+        TF_VAR_hosted_zone_id: ${{ vars.TF_VAR_HOSTED_ZONE_ID }}
+
+    - name: Get Outputs
+      id: outputs
+      run: |
+        cd platform
+        echo "s3_bucket=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+        echo "cloudfront_distribution=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+        echo "certificate_arn=$(terraform output -raw certificate_arn)" >> $GITHUB_OUTPUT
+
+  deploy-crowded-spot:
+    name: Deploy Crowded.Spot
+    runs-on: ubuntu-latest
+    needs: infrastructure
+    if: github.event.inputs.deploy_sites == 'true' || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'sites/crowded.spot/'))
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy Site
+      run: |
+        cd sites/crowded.spot
+        
+        # Sync files to S3
+        aws s3 sync . "s3://${{ needs.infrastructure.outputs.s3_bucket }}/crowded.spot/" \
+          --exclude ".git/*" \
+          --exclude "deploy.sh" \
+          --exclude "*.md" \
+          --delete
+        
+        echo "✓ Crowded.spot deployed successfully"
+
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id "${{ needs.infrastructure.outputs.cloudfront_distribution }}" \
+          --paths "/crowded.spot/*"
+
+  deploy-hiredgnu-net:
+    name: Deploy HiredGnu.net
+    runs-on: ubuntu-latest
+    needs: infrastructure
+    if: github.event.inputs.deploy_sites == 'true' || (github.event_name == 'push' && contains(github.event.head_commit.modified, 'sites/hiredgnu.net/'))
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Install Pelican
+      run: |
+        cd sites/hiredgnu.net/src
+        pip install pelican markdown beautifulsoup4 htmlminifier
+
+    - name: Build Site
+      run: |
+        cd sites/hiredgnu.net/src
+        make clean
+        make html
+        
+        # Optimize HTML
+        find output -name '*.html' -exec htmlminifier \
+          --collapse-whitespace \
+          --remove-comments \
+          --minify-css true \
+          --minify-js true \
+          -o {} {} \;
+        
+        echo "✓ Hiredgnu.net built successfully"
+
+    - name: Deploy Site
+      run: |
+        cd sites/hiredgnu.net/src
+        
+        aws s3 sync output/ "s3://${{ needs.infrastructure.outputs.s3_bucket }}/hiredgnu.net/" \
+          --delete \
+          --cache-control "max-age=31536000,public" \
+          --exclude "*.html" \
+          --include "*.html" \
+          --cache-control "max-age=0,no-cache"
+        
+        echo "✓ Hiredgnu.net deployed successfully"
+
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id "${{ needs.infrastructure.outputs.cloudfront_distribution }}" \
+          --paths "/hiredgnu.net/*"
+
+  summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [infrastructure, deploy-crowded-spot, deploy-hiredgnu-net]
+    if: always()
+    
+    steps:
+    - name: Print Summary
+      run: |
+        echo "🚀 Multi-site deployment completed!"
+        echo ""
+        echo "Infrastructure: ${{ needs.infrastructure.result }}"
+        echo "Crowded.Spot: ${{ needs.deploy-crowded-spot.result }}"
+        echo "Hiredgnu.net: ${{ needs.deploy-hiredgnu-net.result }}"
+        echo ""
+        if [ "${{ needs.infrastructure.result }}" == "success" ]; then
+          echo "📦 S3 Bucket: ${{ needs.infrastructure.outputs.s3_bucket }}"
+          echo "☁️ CloudFront: ${{ needs.infrastructure.outputs.cloudfront_distribution }}"
+        fi
+        echo ""
+        echo "🌐 Sites available at:"
+        echo "  - https://crowded.spot"
+        echo "  - https://hiredgnu.net"
