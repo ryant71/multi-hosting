@@ -29,10 +29,10 @@ jobs:
       working-directory: ./platform
     
     - name: Terraform Plan
-      run: terraform plan -var="bucket_name=${{ secrets.S3_BUCKET_NAME }}" -var="hosted_zone_id=${{ secrets.HOSTED_ZONE_ID }}"
+      run: terraform plan -var="bucket_name=${{ secrets.S3_BUCKET_NAME }}"
       working-directory: ./platform
     
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve -var="bucket_name=${{ secrets.S3_BUCKET_NAME }}" -var="hosted_zone_id=${{ secrets.HOSTED_ZONE_ID }}"
+      run: terraform apply -auto-approve -var="bucket_name=${{ secrets.S3_BUCKET_NAME }}"
       working-directory: ./platform

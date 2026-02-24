@@ -100,7 +100,7 @@ resource "aws_iam_policy" "github_actions" {
           "route53:ListHostedZones"
         ]
         Resource = [
-          "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
+          for zone_id in distinct([for site in var.websites : site.zone_id]) : "arn:aws:route53:::hostedzone/${zone_id}"
         ]
       },
       {
@@ -191,7 +191,7 @@ resource "aws_iam_policy" "deployment_user" {
           "route53:ListHostedZones"
         ]
         Resource = [
-          "arn:aws:route53:::hostedzone/${var.hosted_zone_id}"
+          for zone_id in distinct([for site in var.websites : site.zone_id]) : "arn:aws:route53:::hostedzone/${zone_id}"
         ]
       },
       {

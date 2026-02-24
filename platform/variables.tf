@@ -3,11 +3,6 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "hosted_zone_id" {
-  description = "The Route53 hosted zone ID for the main domain"
-  type        = string
-}
-
 variable "websites" {
   description = "List of websites to host"
   type = list(object({
