@@ -68,18 +68,6 @@ resource "aws_iam_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:ListBucketVersions"
-        ]
-        Resource = [
-          aws_s3_bucket.main.arn,
-          "${aws_s3_bucket.main.arn}/*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
           "s3:PutObject",
           "s3:GetObject",
           "s3:DeleteObject",
@@ -87,7 +75,7 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetObjectAcl"
         ]
         Resource = [
-          "${aws_s3_bucket.main.arn}/*"
+          "${aws_s3_bucket.bucket.arn}/*"
         ]
       },
       {
@@ -100,7 +88,7 @@ resource "aws_iam_policy" "github_actions" {
           "cloudfront:ListDistributions"
         ]
         Resource = [
-          aws_cloudfront_distribution.main.arn
+          aws_cloudfront_distribution.distribution.arn
         ]
       },
       {
@@ -123,7 +111,7 @@ resource "aws_iam_policy" "github_actions" {
           "acm:GetCertificate"
         ]
         Resource = [
-          aws_acm_certificate.main.arn
+          aws_acm_certificate.certificate.arn
         ]
       }
     ]
@@ -171,18 +159,6 @@ resource "aws_iam_policy" "deployment_user" {
       {
         Effect = "Allow"
         Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:ListBucketVersions"
-        ]
-        Resource = [
-          aws_s3_bucket.main.arn,
-          "${aws_s3_bucket.main.arn}/*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
           "s3:PutObject",
           "s3:GetObject",
           "s3:DeleteObject",
@@ -190,7 +166,7 @@ resource "aws_iam_policy" "deployment_user" {
           "s3:GetObjectAcl"
         ]
         Resource = [
-          "${aws_s3_bucket.main.arn}/*"
+          "${aws_s3_bucket.bucket.arn}/*"
         ]
       },
       {
@@ -203,7 +179,7 @@ resource "aws_iam_policy" "deployment_user" {
           "cloudfront:ListDistributions"
         ]
         Resource = [
-          aws_cloudfront_distribution.main.arn
+          aws_cloudfront_distribution.distribution.arn
         ]
       },
       {
@@ -226,7 +202,7 @@ resource "aws_iam_policy" "deployment_user" {
           "acm:GetCertificate"
         ]
         Resource = [
-          aws_acm_certificate.main.arn
+          aws_acm_certificate.certificate.arn
         ]
       }
     ]

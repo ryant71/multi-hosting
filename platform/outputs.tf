@@ -15,7 +15,7 @@ output "cloudfront_distribution_domain_name" {
 
 output "cloudfront_distribution_id" {
   description = "CloudFront distribution ID"
-  value       = aws_cloudfront_distribution.main.id
+  value       = aws_cloudfront_distribution.distribution.id
 }
 
 output "s3_bucket_name" {
@@ -25,7 +25,7 @@ output "s3_bucket_name" {
 
 output "certificate_arn" {
   description = "SSL certificate ARN"
-  value       = aws_acm_certificate.main.arn
+  value       = aws_acm_certificate.certificate.arn
 }
 
 output "website_fqdns" {

@@ -5,20 +5,16 @@ locals {
       "*.${site.domain_name}"
     ]
   ]))
+  
+  domain_zone_mapping = {
+    for site in var.websites : site.domain_name => site.zone_id
+  }
 }
 
 resource "aws_acm_certificate" "certificate" {
   domain_name               = local.all_domains[0]
   subject_alternative_names = slice(local.all_domains, 1, length(local.all_domains))
   validation_method         = "DNS"
-
-  dynamic "domain_validation_options" {
-    for_each = local.all_domains
-    content {
-      domain_name    = domain_validation_options.value
-      hosted_zone_id = var.hosted_zone_id
-    }
-  }
 
   tags = {
     Name = "multi-domain-certificate"
@@ -31,6 +27,7 @@ resource "aws_route53_record" "certificate_validation" {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
+      zone_id = local.domain_zone_mapping[replace(dvo.domain_name, "*.", "")]
     }
   }
 
@@ -39,7 +36,7 @@ resource "aws_route53_record" "certificate_validation" {
   records         = [each.value.record]
   ttl             = 60
   type            = each.value.type
-  zone_id         = var.hosted_zone_id
+  zone_id         = each.value.zone_id
 }
 
 resource "aws_acm_certificate_validation" "certificate" {

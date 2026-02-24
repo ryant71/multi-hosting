@@ -4,7 +4,7 @@ variable "bucket_name" {
 }
 
 variable "hosted_zone_id" {
-  description = "The Route53 hosted zone ID"
+  description = "The Route53 hosted zone ID for the main domain"
   type        = string
 }
 

@@ -36,8 +36,8 @@ resource "aws_wafv2_web_acl" "rate_limit" {
 }
 
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "${var.fqdn}-OAC"
-  description                       = "Origin Access Control for ${var.fqdn}"
+  name                              = "${var.bucket_name}-OAC"
+  description                       = "Origin Access Control for ${var.bucket_name}"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
