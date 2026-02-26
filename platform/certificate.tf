@@ -12,6 +12,7 @@ locals {
 }
 
 resource "aws_acm_certificate" "certificate" {
+  provider                 = aws.us_east_1
   domain_name               = local.all_domains[0]
   subject_alternative_names = slice(local.all_domains, 1, length(local.all_domains))
   validation_method         = "DNS"

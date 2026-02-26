@@ -8,17 +8,13 @@ terraform {
     }
   }
 
-  # Uncomment and configure backend as needed
-  # backend "s3" {
-  #   bucket         = "terraform-state-bucket"
-  #   key            = "multi-hosting/terraform.tfstate"
-  #   region         = "us-east-1"
-  #   encrypt        = true
-  #   dynamodb_table = "terraform-locks"
-  # }
+  backend "local" {
+    path = "terraform.tfstate"
+  }
 }
 
 provider "aws" {
+  alias  = "us_east_1"
   region = "us-east-1" # ACM certificates for CloudFront must be in us-east-1
   
   default_tags {
@@ -26,6 +22,35 @@ provider "aws" {
       Project     = "multi-hosting"
       ManagedBy   = "terraform"
       Environment = "production"
+      Region      = "us-east-1"
+    }
+  }
+}
+
+provider "aws" {
+  alias  = "eu_central_1"
+  region = "eu-central-1"
+  
+  default_tags {
+    tags = {
+      Project     = "multi-hosting"
+      ManagedBy   = "terraform"
+      Environment = "production"
+      Region      = "eu-central-1"
+    }
+  }
+}
+
+# Default provider (set to EU for most resources)
+provider "aws" {
+  region = "eu-central-1"  # Default to EU (Frankfurt)
+  
+  default_tags {
+    tags = {
+      Project     = "multi-hosting"
+      ManagedBy   = "terraform"
+      Environment = "production"
+      Region      = "eu-central-1"
     }
   }
 }

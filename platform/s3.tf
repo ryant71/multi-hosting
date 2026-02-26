@@ -100,7 +100,8 @@ resource "aws_cloudfront_distribution" "distribution" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = var.bucket_name
+  provider = aws.eu_central_1
+  bucket   = var.bucket_name
 
   tags = {
     Name = var.bucket_name
@@ -108,7 +109,8 @@ resource "aws_s3_bucket" "bucket" {
 }
 
 resource "aws_s3_bucket_website_configuration" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
+  provider = aws.eu_central_1
+  bucket  = aws_s3_bucket.bucket.id
 
   index_document {
     suffix = "index.html"
@@ -120,7 +122,8 @@ resource "aws_s3_bucket_website_configuration" "bucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
+  provider = aws.eu_central_1
+  bucket  = aws_s3_bucket.bucket.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -129,7 +132,8 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
 }
 
 resource "aws_s3_bucket_policy" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
+  provider = aws.eu_central_1
+  bucket  = aws_s3_bucket.bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
