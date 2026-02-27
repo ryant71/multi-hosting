@@ -1,6 +1,7 @@
 resource "aws_wafv2_web_acl" "rate_limit" {
-  name  = "RateLimitWebACL"
-  scope = "CLOUDFRONT"
+  provider = aws.us_east_1
+  name     = "RateLimitWebACL"
+  scope    = "CLOUDFRONT"
 
   default_action {
     allow {}
@@ -32,6 +33,12 @@ resource "aws_wafv2_web_acl" "rate_limit" {
       cloudwatch_metrics_enabled = true
       metric_name                = "RateLimitRule"
     }
+  }
+
+  tags = {
+    Project     = "multi-hosting"
+    ManagedBy   = "terraform"
+    Purpose     = "rate-limiting"
   }
 }
 
@@ -91,7 +98,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.certificate.certificate_arn
+    acm_certificate_arn      = aws_acm_certificate.certificate.arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }

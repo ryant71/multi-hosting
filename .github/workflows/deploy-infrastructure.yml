@@ -57,7 +57,6 @@ jobs:
               key            = "multi-hosting/terraform.tfstate"
               region         = "eu-central-1"
               encrypt        = true
-              dynamodb_table = "terraform-locks-multi-hosting"
             }
           }
         EOF

@@ -53,6 +53,15 @@ resource "aws_iam_openid_connect_provider" "github" {
     ManagedBy   = "terraform"
     Purpose     = "github-actions-oidc"
   }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore if provider already exists
+      url,
+      client_id_list,
+      thumbprint_list
+    ]
+  }
 }
 
 # IAM Policy for GitHub Actions Role
