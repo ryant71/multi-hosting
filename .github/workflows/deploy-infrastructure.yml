@@ -46,6 +46,20 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Create Backend Config
+      run: |
+        cat > backend.tf <<EOF
+        terraform {
+          backend "s3" {
+            bucket         = "${{ secrets.TF_STATE_BUCKET }}"
+            key            = "multi-hosting/terraform.tfstate"
+            region         = "eu-central-1"
+            encrypt        = true
+            use_lockfile   = true
+          }
+        }
+        EOF
+
     - name: Terraform Init
       run: |
         cd platform
