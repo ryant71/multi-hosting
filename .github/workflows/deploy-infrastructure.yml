@@ -60,10 +60,10 @@ jobs:
         }
         EOF
 
-    - name: Terraform Init
+    - name: Terraform Format
       run: |
         cd platform
-        terraform init -input=false
+        terraform fmt -write=true
 
     - name: Terraform Format Check
       run: |
@@ -74,6 +74,11 @@ jobs:
       run: |
         cd platform
         terraform validate
+
+    - name: Terraform Init
+      run: |
+        cd platform
+        terraform init -input=false
 
     - name: Terraform Plan
       run: |

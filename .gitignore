@@ -2,6 +2,8 @@
 *.tfvars.json
 *.tfstate
 *.tfstate.*
+tfplan
+tfplan.*
 
 # Backend configuration (contains sensitive bucket names)
 backend.tf
