@@ -71,15 +71,15 @@ jobs:
         cd platform
         terraform fmt -check -diff=false
 
-    - name: Terraform Validate
-      run: |
-        cd platform
-        terraform validate
-
     - name: Terraform Init
       run: |
         cd platform
         terraform init -input=false
+
+    - name: Terraform Validate
+      run: |
+        cd platform
+        terraform validate
 
     - name: Terraform Plan
       run: |
