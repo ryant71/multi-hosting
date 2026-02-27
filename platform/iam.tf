@@ -108,7 +108,8 @@ resource "aws_iam_policy" "github_actions" {
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
-          "dynamodb:DescribeTable"
+          "dynamodb:DescribeTable",
+          "dynamodb:DescribeContinuousBackups"
         ]
         Resource = [
           "arn:aws:dynamodb:eu-central-1:487196000447:table/terraform-locks-multi-hosting"
@@ -119,12 +120,13 @@ resource "aws_iam_policy" "github_actions" {
         Action = [
           "cloudfront:CreateInvalidation",
           "cloudfront:GetInvalidation",
-          "cloudfront:ListInvalidation",
+          "cloudfront:ListInvalidations",
           "cloudfront:GetDistribution",
-          "cloudfront:ListDistributions"
+          "cloudfront:ListDistributions",
+          "cloudfront:GetOriginAccessControl"
         ]
         Resource = [
-          aws_cloudfront_distribution.distribution.arn
+          "*"
         ]
       },
       {
@@ -144,10 +146,68 @@ resource "aws_iam_policy" "github_actions" {
         Action = [
           "acm:DescribeCertificate",
           "acm:ListCertificates",
-          "acm:GetCertificate"
+          "acm:GetCertificate",
+          "acm:ListTagsForCertificate"
         ]
         Resource = [
-          aws_acm_certificate.certificate.arn
+          "*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:GetOpenIDConnectProvider",
+          "iam:GetRole",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:GetPolicy",
+          "iam:GetPolicyVersion"
+        ]
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "wafv2:GetWebACL",
+          "wafv2:ListWebACLs",
+          "wafv2:ListTagsForResource"
+        ]
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetBucketWebsite",
+          "s3:GetBucketPolicy",
+          "s3:GetPublicAccessBlock",
+          "s3:GetBucketLocation",
+          "s3:GetBucketAcl",
+          "s3:GetBucketCORS",
+          "s3:GetAccelerateConfiguration",
+          "s3:GetBucketRequestPayment",
+          "s3:GetBucketLogging"
+        ]
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudfront:CreateInvalidation",
+          "cloudfront:GetInvalidation",
+          "cloudfront:ListInvalidations",
+          "cloudfront:GetDistribution",
+          "cloudfront:ListDistributions",
+          "cloudfront:GetOriginAccessControl",
+          "cloudfront:ListTagsForResource"
+        ]
+        Resource = [
+          "*"
         ]
       }
     ]
