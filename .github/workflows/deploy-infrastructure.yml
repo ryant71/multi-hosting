@@ -48,6 +48,8 @@ jobs:
 
     - name: Create Backend Config
       run: |
+        pwd
+        cd platform
         cat > backend.tf <<EOF
           terraform {
             backend "s3" {
@@ -62,18 +64,24 @@ jobs:
 
     - name: Terraform Format
       run: |
+        pwd
+        cd platform
         terraform fmt -write=true
 
     - name: Terraform Format Check
       run: |
+        pwd
+        cd platform
         terraform fmt -check -diff=false
 
     - name: Terraform Init
       run: |
+        cd platform
         terraform init -input=false
 
     - name: Terraform Validate
       run: |
+        cd platform
         terraform validate
 
     - name: Terraform Plan
