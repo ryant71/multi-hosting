@@ -58,8 +58,15 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 }
 
-# Random suffix for unique bucket name
+# Random suffix for unique state bucket name
 resource "random_string" "state_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
+# Random suffix for unique content bucket name
+resource "random_string" "content_suffix" {
   length  = 8
   special = false
   upper   = false

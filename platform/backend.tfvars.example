@@ -1,0 +1,8 @@
+# Backend Configuration Template
+# Copy this to backend.tfvars and fill in your values
+
+# S3 State Bucket Name (use random, non-guessable name)
+TF_STATE_BUCKET = "terraform-state-multi-hosting-your-random-suffix"
+
+# DynamoDB Lock Table Name (optional - defaults to terraform-locks-multi-hosting)
+# TF_STATE_LOCK_TABLE = "terraform-locks-multi-hosting"

@@ -2,6 +2,10 @@
 *.tfvars.json
 *.tfstate
 *.tfstate.*
+
+# Backend configuration (contains sensitive bucket names)
+backend.tf
+backend.tfvars
 .terraform/
 .terraform.lock.hcl
 

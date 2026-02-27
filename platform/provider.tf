@@ -8,9 +8,7 @@ terraform {
     }
   }
 
-  backend "local" {
-    path = "terraform.tfstate"
-  }
+  # Backend configuration moved to backend.tfvars for security
 }
 
 provider "aws" {

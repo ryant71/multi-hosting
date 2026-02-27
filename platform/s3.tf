@@ -101,7 +101,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
 resource "aws_s3_bucket" "bucket" {
   provider = aws.eu_central_1
-  bucket   = "${var.bucket_name}-${random_string.state_suffix.result}"
+  bucket   = "${var.bucket_name}-${random_string.content_suffix.result}"
 
   tags = {
     Name = var.bucket_name
