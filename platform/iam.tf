@@ -81,9 +81,36 @@ resource "aws_iam_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+          "s3:GetBucketVersioning",
+          "s3:PutBucketVersioning"
+        ]
+        Resource = [
+          "arn:aws:s3:::terraform-state-multi-hosting-*",
+          "arn:aws:s3:::terraform-state-multi-hosting-*/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:DescribeTable"
+        ]
+        Resource = [
+          "arn:aws:dynamodb:eu-central-1:487196000447:table/terraform-locks-multi-hosting"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "cloudfront:CreateInvalidation",
           "cloudfront:GetInvalidation",
-          "cloudfront:ListInvalidations",
+          "cloudfront:ListInvalidation",
           "cloudfront:GetDistribution",
           "cloudfront:ListDistributions"
         ]
