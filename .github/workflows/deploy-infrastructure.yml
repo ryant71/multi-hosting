@@ -68,7 +68,7 @@ jobs:
     - name: Terraform Format Check
       run: |
         cd platform
-        terraform fmt -check
+        terraform fmt -check -diff=false
 
     - name: Terraform Validate
       run: |
