@@ -48,37 +48,32 @@ jobs:
 
     - name: Create Backend Config
       run: |
-        cd platform
         cat > backend.tf <<EOF
-        terraform {
-          backend "s3" {
-            bucket         = "${{ secrets.TF_STATE_BUCKET }}"
-            key            = "multi-hosting/terraform.tfstate"
-            region         = "eu-central-1"
-            encrypt        = true
-            use_lockfile   = true
+          terraform {
+            backend "s3" {
+              bucket         = "${{ secrets.TF_STATE_BUCKET }}"
+              key            = "multi-hosting/terraform.tfstate"
+              region         = "eu-central-1"
+              encrypt        = true
+              dynamodb_table = "terraform-locks-multi-hosting"
+            }
           }
-        }
         EOF
 
     - name: Terraform Format
       run: |
-        cd platform
         terraform fmt -write=true
 
     - name: Terraform Format Check
       run: |
-        cd platform
         terraform fmt -check -diff=false
 
     - name: Terraform Init
       run: |
-        cd platform
         terraform init -input=false
 
     - name: Terraform Validate
       run: |
-        cd platform
         terraform validate
 
     - name: Terraform Plan
