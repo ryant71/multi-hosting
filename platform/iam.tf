@@ -109,7 +109,8 @@ resource "aws_iam_policy" "github_actions" {
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
           "dynamodb:DescribeTable",
-          "dynamodb:DescribeContinuousBackups"
+          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:DescribeTimeToLive"
         ]
         Resource = [
           "arn:aws:dynamodb:eu-central-1:487196000447:table/terraform-locks-multi-hosting"
@@ -191,7 +192,8 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetBucketRequestPayment",
           "s3:GetBucketLogging",
           "s3:GetLifecycleConfiguration",
-          "s3:GetReplicationConfiguration"
+          "s3:GetReplicationConfiguration",
+          "s3:GetEncryptionConfiguration"
         ]
         Resource = [
           "*"
