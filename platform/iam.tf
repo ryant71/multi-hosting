@@ -107,6 +107,7 @@ resource "aws_iam_policy" "github_actions" {
           "s3:CreateBucket",
           "s3:DeleteBucket",
           "s3:DeleteBucketPolicy",
+          "s3:PutBucketPolicy",
           "s3:DeleteBucketWebsite",
           "s3:GetAccelerateConfiguration",
           "s3:GetBucketAcl",
