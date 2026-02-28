@@ -263,6 +263,7 @@ resource "aws_iam_policy" "github_actions" {
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
           "iam:ListPolicyVersions",
+          "iam:CreatePolicyVersion",
           "iam:DeletePolicyVersion",
           "iam:GetRole",
           "iam:ListAttachedRolePolicies",
