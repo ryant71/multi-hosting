@@ -111,7 +111,8 @@ resource "aws_iam_policy" "github_actions" {
           "dynamodb:DescribeTable",
           "dynamodb:DescribeContinuousBackups",
           "dynamodb:DescribeTimeToLive",
-          "dynamodb:ListTagsOfResource"
+          "dynamodb:ListTagsOfResource",
+          "dynamodb:UpdateItem"
         ]
         Resource = [
           "arn:aws:dynamodb:eu-central-1:487196000447:table/terraform-locks-multi-hosting"
@@ -185,7 +186,7 @@ resource "aws_iam_policy" "github_actions" {
         Action = [
           "s3:GetBucketWebsite",
           "s3:GetBucketPolicy",
-          "s3:GetPublicAccessBlock",
+          "s3:GetBucketPublicAccessBlock",
           "s3:GetBucketLocation",
           "s3:GetBucketAcl",
           "s3:GetBucketCORS",
@@ -196,7 +197,8 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetReplicationConfiguration",
           "s3:GetEncryptionConfiguration",
           "s3:GetBucketObjectLockConfiguration",
-          "s3:GetBucketTagging"
+          "s3:GetBucketTagging",
+          "s3:PutBucketPublicAccessBlock"
         ]
         Resource = [
           "*"
