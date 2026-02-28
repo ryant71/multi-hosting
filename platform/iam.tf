@@ -195,7 +195,8 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetLifecycleConfiguration",
           "s3:GetReplicationConfiguration",
           "s3:GetEncryptionConfiguration",
-          "s3:GetBucketObjectLockConfiguration"
+          "s3:GetBucketObjectLockConfiguration",
+          "s3:GetBucketTagging"
         ]
         Resource = [
           "*"
