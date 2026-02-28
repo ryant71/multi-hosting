@@ -210,6 +210,7 @@ resource "aws_iam_policy" "github_actions" {
         Action = [
           "cloudfront:CreateInvalidation",
           "cloudfront:GetDistribution",
+          "cloudfront:UpdateDistribution",
           "cloudfront:GetInvalidation",
           "cloudfront:GetOriginAccessControl",
           "cloudfront:ListDistributions",
@@ -261,6 +262,8 @@ resource "aws_iam_policy" "github_actions" {
           "iam:GetOpenIDConnectProvider",
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
+          "iam:ListPolicyVersions",
+          "iam:DeletePolicyVersion",
           "iam:GetRole",
           "iam:ListAttachedRolePolicies",
           "iam:ListRolePolicies",
