@@ -2,7 +2,7 @@
 # Copy this to terraform.tfvars and fill in your values
 
 # S3 Bucket Configuration
-bucket_name = "multi-site-tf-state"
+bucket_name = "multi-site-content"
 
 # GitHub Actions OIDC Configuration (Recommended)
 enable_oidc      = true
@@ -15,7 +15,7 @@ websites = [
   {
     fqdn        = "hiredgnu.net"
     domain_name = "hiredgnu.net"
-    path_prefix = "hiredgnu"
+    path_prefix = "hiredgnu.net"  # Include .net for consistency
     zone_id     = "Z2B00DRLLVN6P9"  # Route53 hosted zone ID for hiredgnu.net
   },
   {
