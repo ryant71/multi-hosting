@@ -110,7 +110,8 @@ resource "aws_iam_policy" "github_actions" {
           "dynamodb:DeleteItem",
           "dynamodb:DescribeTable",
           "dynamodb:DescribeContinuousBackups",
-          "dynamodb:DescribeTimeToLive"
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:ListTagsOfResource"
         ]
         Resource = [
           "arn:aws:dynamodb:eu-central-1:487196000447:table/terraform-locks-multi-hosting"
