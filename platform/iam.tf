@@ -81,7 +81,11 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetObject",
           "s3:DeleteObject",
           "s3:PutObjectAcl",
-          "s3:GetObjectAcl"
+          "s3:GetObjectAcl",
+          "s3:DeleteBucket",
+          "s3:DeleteBucketPolicy",
+          "s3:DeleteBucketWebsite",
+          "s3:DeleteBucketPublicAccessBlock/"
         ]
         Resource = [
           "${aws_s3_bucket.bucket.arn}/*"
@@ -268,7 +272,11 @@ resource "aws_iam_policy" "deployment_user" {
           "s3:GetObject",
           "s3:DeleteObject",
           "s3:PutObjectAcl",
-          "s3:GetObjectAcl"
+          "s3:GetObjectAcl",
+          "s3:DeleteBucket",
+          "s3:DeleteBucketPolicy",
+          "s3:DeleteBucketWebsite",
+          "s3:DeleteBucketPublicAccessBlock/"
         ]
         Resource = [
           "${aws_s3_bucket.bucket.arn}/*"
