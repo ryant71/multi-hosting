@@ -214,6 +214,7 @@ resource "aws_iam_policy" "github_actions" {
           "cloudfront:UpdateDistribution",
           "cloudfront:GetInvalidation",
           "cloudfront:GetOriginAccessControl",
+          "cloudfront:UpdateOriginAccessControl",
           "cloudfront:ListDistributions",
           "cloudfront:ListInvalidations",
           "cloudfront:ListTagsForResource",
@@ -272,6 +273,8 @@ resource "aws_iam_policy" "github_actions" {
           "iam:PutRolePolicy",
           "iam:UpdateRole",
           "iam:UpdateRoleDescription",
+          "iam:DetachRolePolicy",
+          "iam:AttachRolePolicy",
         ]
         Resource = [
           "arn:aws:iam::487196000447:role/${var.bucket_name}-*",
