@@ -142,6 +142,7 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetBucketTagging",
           "s3:GetBucketWebsite",
           "s3:GetEncryptionConfiguration",
+          "s3:GetAccelerateConfiguration",
         ]
         Resource = [
           "arn:aws:s3:::terraform-state-multi-hosting-*",
