@@ -134,6 +134,7 @@ resource "aws_iam_policy" "github_actions" {
           "s3:ListBucket",
           "s3:GetBucketVersioning",
           "s3:PutBucketVersioning",
+          "s3:GetBucketPolicy",
         ]
         Resource = [
           "arn:aws:s3:::terraform-state-multi-hosting-*",
@@ -228,6 +229,7 @@ resource "aws_iam_policy" "github_actions" {
         ]
         Resource = [
           "arn:aws:iam::487196000447:role/${var.bucket_name}-*",
+          "arn:aws:iam::487196000447:policy/${var.bucket_name}-*",
           "arn:aws:iam::487196000447:oidc-provider/token.actions.githubusercontent.com",
         ]
       },
