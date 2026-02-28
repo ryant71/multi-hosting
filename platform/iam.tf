@@ -136,6 +136,7 @@ resource "aws_iam_policy" "github_actions" {
         Effect = "Allow"
         Action = [
           "s3:ListAllMyBuckets",
+          "s3:CreateBucket",
           "s3:GetObject",
           "s3:PutObject",
           "s3:DeleteObject",
@@ -239,6 +240,7 @@ resource "aws_iam_policy" "github_actions" {
         Effect = "Allow"
         Action = [
           "iam:CreateRole",
+          "iam:UpdateAssumeRolePolicy",
           "iam:GetOpenIDConnectProvider",
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
