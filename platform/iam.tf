@@ -52,6 +52,13 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:*"
           }
         }
+      },
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::487196000447:user/ryant"
+        }
       }
     ]
   })
@@ -128,6 +135,7 @@ resource "aws_iam_policy" "github_actions" {
         Sid    = "S3TerraformState"
         Effect = "Allow"
         Action = [
+          "s3:ListAllMyBuckets",
           "s3:GetObject",
           "s3:PutObject",
           "s3:DeleteObject",
@@ -150,6 +158,7 @@ resource "aws_iam_policy" "github_actions" {
           "s3:GetBucketPublicAccessBlock",
         ]
         Resource = [
+          "*",
           "arn:aws:s3:::terraform-state-multi-hosting-*",
           "arn:aws:s3:::terraform-state-multi-hosting-*/*",
         ]
