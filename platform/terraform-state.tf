@@ -70,8 +70,4 @@ resource "random_string" "content_suffix" {
   length  = 8
   special = false
   upper   = false
-  keepers = {
-    # Force recreation when timestamp changes
-    timestamp = timestamp()
-  }
 }
