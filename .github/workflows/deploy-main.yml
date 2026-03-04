@@ -1,0 +1,15 @@
+name: Deploy Main Branch
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-all:
+    name: Full Deployment
+    uses: ./.github/workflows/deploy-all-reusable.yml
+    with:
+      deploy_infrastructure: true
+      deploy_sites: 'all'
+      environment: 'prod'
+    secrets: inherit
