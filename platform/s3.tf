@@ -36,9 +36,9 @@ resource "aws_wafv2_web_acl" "rate_limit" {
   }
 
   tags = {
-    Project     = "multi-hosting"
-    ManagedBy   = "terraform"
-    Purpose     = "rate-limiting"
+    Project   = "multi-hosting"
+    ManagedBy = "terraform"
+    Purpose   = "rate-limiting"
   }
 }
 
@@ -80,13 +80,13 @@ resource "aws_cloudfront_distribution" "distribution" {
   dynamic "ordered_cache_behavior" {
     for_each = slice(var.websites, 1, length(var.websites))
     content {
-      path_pattern           = "${ordered_cache_behavior.value.path_prefix}/*"
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      compress               = true
-      target_origin_id       = "S3Origin"
-      viewer_protocol_policy = "redirect-to-https"
-      cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimised
+      path_pattern             = "${ordered_cache_behavior.value.path_prefix}/*"
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      compress                 = true
+      target_origin_id         = "S3Origin"
+      viewer_protocol_policy   = "redirect-to-https"
+      cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimised
       origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # None (no headers/cookies/query strings)
     }
   }
@@ -125,7 +125,7 @@ resource "aws_s3_bucket" "bucket" {
 
 resource "aws_s3_bucket_website_configuration" "bucket" {
   provider = aws.eu_central_1
-  bucket  = aws_s3_bucket.bucket.id
+  bucket   = aws_s3_bucket.bucket.id
 
   index_document {
     suffix = "index.html"
@@ -138,7 +138,7 @@ resource "aws_s3_bucket_website_configuration" "bucket" {
 
 resource "aws_s3_bucket_public_access_block" "bucket" {
   provider = aws.eu_central_1
-  bucket  = aws_s3_bucket.bucket.id
+  bucket   = aws_s3_bucket.bucket.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -148,7 +148,7 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
 
 resource "aws_s3_bucket_policy" "bucket" {
   provider = aws.eu_central_1
-  bucket  = aws_s3_bucket.bucket.id
+  bucket   = aws_s3_bucket.bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -171,8 +171,8 @@ resource "aws_s3_bucket_policy" "bucket" {
 
 resource "aws_route53_record" "dns" {
   for_each = { for site in var.websites : site.fqdn => site }
-  
-  zone_id = each.value.zone_id  # ✅ Use individual zone ID for each domain
+
+  zone_id = each.value.zone_id # ✅ Use individual zone ID for each domain
   name    = each.value.fqdn
   type    = "A"
 

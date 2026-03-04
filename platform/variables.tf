@@ -9,14 +9,14 @@ variable "websites" {
     fqdn        = string
     domain_name = string
     path_prefix = string
-    zone_id     = string  # Added: Route53 hosted zone ID for each domain
+    zone_id     = string # Added: Route53 hosted zone ID for each domain
   }))
   default = [
     {
       fqdn        = "hiredgnu.net"
       domain_name = "hiredgnu.net"
       path_prefix = "hiredgnu"
-      zone_id     = ""  # Must be specified
+      zone_id     = "" # Must be specified
     }
   ]
 }
