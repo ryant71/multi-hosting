@@ -38,7 +38,7 @@ jobs:
     - name: Terraform Plan
       run: |
         cd platform
-        terraform plan -no-color
+        terraform plan -no-color -backend=false
 
     - name: Terraform Security Scan
       uses: aquasecurity/tfsec-action@v1.0.0
