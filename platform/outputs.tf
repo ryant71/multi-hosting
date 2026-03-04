@@ -38,6 +38,11 @@ output "website_domains" {
   value       = [for site in var.websites : site.domain_name]
 }
 
+output "terraform_state_bucket" {
+  description = "Terraform state S3 bucket name"
+  value       = aws_s3_bucket.terraform_state.id
+}
+
 # IAM Outputs
 output "github_actions_role_arn" {
   description = "GitHub Actions IAM role ARN"
