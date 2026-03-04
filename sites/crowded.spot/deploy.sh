@@ -27,7 +27,7 @@ fi
 # Get S3 bucket and distribution ID from terraform outputs if not set
 if [ -z "$S3_BUCKET" ] && [ -f "../platform/terraform.tfstate" ]; then
     echo -e "${YELLOW}Getting S3 bucket from Terraform outputs...${NC}"
-    S3_BUCKET=$(cd ../platform && terraform output -raw s3_bucket_name 2>/dev/null || echo "")
+    S3_BUCKET=$(cd ../platform && terraform output -raw s3_content_bucket_name 2>/dev/null || echo "")
 fi
 
 if [ -z "$DISTRIBUTION_ID" ] && [ -f "../platform/terraform.tfstate" ]; then

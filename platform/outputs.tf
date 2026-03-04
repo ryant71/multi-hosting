@@ -18,8 +18,8 @@ output "cloudfront_distribution_id" {
   value       = aws_cloudfront_distribution.distribution.id
 }
 
-output "s3_bucket_name" {
-  description = "S3 Bucket Name"
+output "s3_content_bucket_name" {
+  description = "S3 Bucket Name for site content"
   value       = aws_s3_bucket.bucket.id
 }
 
