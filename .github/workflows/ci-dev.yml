@@ -28,7 +28,7 @@ jobs:
     - name: Terraform Init
       run: |
         cd platform
-        terraform init -input=false -backend-config="bucket=terraform-state-multi-hosting-qgn15tut" -backend-config="key=multi-hosting/terraform.tfstate" -backend-config="region=eu-central-1"
+        terraform init -input=false -backend=false
 
     - name: Terraform Validate
       run: |
