@@ -46,21 +46,6 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Create Backend Config
-      run: |
-        pwd
-        cd platform
-        cat > backend.tf <<EOF
-          terraform {
-            backend "s3" {
-              bucket         = "${{ secrets.TF_STATE_BUCKET }}"
-              key            = "multi-hosting/terraform.tfstate"
-              region         = "eu-central-1"
-              encrypt        = true
-            }
-          }
-        EOF
-
     - name: Terraform Format
       run: |
         pwd
@@ -76,7 +61,12 @@ jobs:
     - name: Terraform Init
       run: |
         cd platform
-        terraform init -input=false
+        terraform init -input=false \
+          -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+          -backend-config="key=multi-hosting/terraform.tfstate" \
+          -backend-config="region=eu-central-1" \
+          -backend-config="encrypt=true" \
+          -backend-config="dynamodb_table=terraform-locks-multi-hosting"
 
     - name: Terraform Validate
       run: |
