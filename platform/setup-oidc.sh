@@ -29,8 +29,5 @@ aws iam create-role --role-name multi-hosting-ahx6m-github-actions --assume-role
 ROLE_ARN=$(aws iam get-role --role-name multi-hosting-ahx6m-github-actions --query Role.Arn --output text)
 echo "Role ARN: $ROLE_ARN"
 
-# Create OIDC provider if it doesn't exist
-aws iam create-open-id-connect-provider --url https://token.actions.githubusercontent.com --client-id-list sts.amazonaws.com --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 2>/dev/null || echo "OIDC provider already exists"
-
 echo "Setup complete! Use this role ARN in GitHub secrets:"
 echo "$ROLE_ARN"

@@ -5,8 +5,7 @@
 tfplan
 tfplan.*
 
-# Backend configuration (contains sensitive bucket names)
-backend.tf
+# Backend configuration (contains sensitive values - use backend.tfvars.example as template)
 backend.tfvars
 .terraform/
 .terraform.lock.hcl

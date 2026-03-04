@@ -104,6 +104,10 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
   web_acl_id = aws_wafv2_web_acl.rate_limit.arn
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket" "bucket" {
@@ -112,6 +116,10 @@ resource "aws_s3_bucket" "bucket" {
 
   tags = {
     Name = var.bucket_name
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
