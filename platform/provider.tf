@@ -14,7 +14,7 @@ terraform {
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1" # ACM certificates for CloudFront must be in us-east-1
-  
+
   default_tags {
     tags = {
       Project     = "multi-hosting"
@@ -28,7 +28,7 @@ provider "aws" {
 provider "aws" {
   alias  = "eu_central_1"
   region = "eu-central-1"
-  
+
   default_tags {
     tags = {
       Project     = "multi-hosting"
@@ -41,8 +41,8 @@ provider "aws" {
 
 # Default provider (set to EU for most resources)
 provider "aws" {
-  region = "eu-central-1"  # Default to EU (Frankfurt)
-  
+  region = "eu-central-1" # Default to EU (Frankfurt)
+
   default_tags {
     tags = {
       Project     = "multi-hosting"

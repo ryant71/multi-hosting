@@ -5,14 +5,14 @@ locals {
       "*.${site.domain_name}"
     ]
   ]))
-  
+
   domain_zone_mapping = {
     for site in var.websites : site.domain_name => site.zone_id
   }
 }
 
 resource "aws_acm_certificate" "certificate" {
-  provider                 = aws.us_east_1
+  provider                  = aws.us_east_1
   domain_name               = local.all_domains[0]
   subject_alternative_names = slice(local.all_domains, 1, length(local.all_domains))
   validation_method         = "DNS"
