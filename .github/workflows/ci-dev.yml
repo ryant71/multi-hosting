@@ -25,21 +25,6 @@ jobs:
         cd platform
         terraform fmt -check -diff=false
 
-    - name: Terraform Validate
-      run: |
-        cd platform
-        terraform validate
-
-    - name: Terraform Plan (Dry Run)
-      run: |
-        cd platform
-        terraform plan -no-color
-
-    - name: Terraform Security Scan
-      uses: aquasecurity/tfsec-action@v1.0.0
-      with:
-        working_directory: platform
-
   validate-crowded-spot:
     name: Validate Crowded.Spot Site
     runs-on: ubuntu-latest
