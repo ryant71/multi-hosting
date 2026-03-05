@@ -218,6 +218,12 @@ resource "aws_iam_policy" "github_actions" {
           "cloudfront:ListDistributions",
           "cloudfront:ListInvalidations",
           "cloudfront:ListTagsForResource",
+          "cloudfront:CreateFunction",
+          "cloudfront:UpdateFunction",
+          "cloudfront:DeleteFunction",
+          "cloudfront:GetFunction",
+          "cloudfront:DescribeFunction",
+          "cloudfront:PublishFunction",
         ]
         Resource = ["*"]
       },

@@ -47,6 +47,9 @@ resource "aws_cloudfront_function" "path_rewriter" {
   runtime = "cloudfront-js-2.0"
   comment = "Rewrites URI to host-based prefix and resolves directory index documents"
   publish = true
+
+  depends_on = [aws_iam_policy.github_actions]
+
   code    = <<-EOT
     function handler(event) {
       var request = event.request;
