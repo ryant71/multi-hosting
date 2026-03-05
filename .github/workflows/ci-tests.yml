@@ -25,8 +25,8 @@ jobs:
         cd platform
         terraform fmt -check -diff=false
 
-  test-crowded-spot:
-    name: Test Crowded.Spot Site
+  validate-crowded-spot:
+    name: Validate Crowded.Spot Site
     runs-on: ubuntu-latest
     
     steps:
@@ -68,8 +68,8 @@ jobs:
           exit 1
         fi
 
-  test-hiredgnu-net:
-    name: Test HiredGnu.net Site
+  validate-hiredgnu-net:
+    name: Validate HiredGnu.net Site
     runs-on: ubuntu-latest
     
     steps:
