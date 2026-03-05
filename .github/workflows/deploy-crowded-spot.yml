@@ -20,6 +20,7 @@ on:
 env:
   AWS_REGION: eu-central-1
   SITE_NAME: crowded.spot
+  TF_VERSION: 1.5.7
 
 jobs:
   deploy:
@@ -40,17 +41,23 @@ jobs:
         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
         aws-region: ${{ env.AWS_REGION }}
 
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
     - name: Get Infrastructure Outputs
       id: infra
       run: |
-        if [ -f "platform/terraform.tfstate" ]; then
-          cd platform
-          echo "s3_bucket=$(terraform output -raw s3_content_bucket_name 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
-          echo "cloudfront_distribution=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
-        else
-          echo "s3_bucket=" >> $GITHUB_OUTPUT
-          echo "cloudfront_distribution=" >> $GITHUB_OUTPUT
-        fi
+        cd platform
+        terraform init -input=false \
+          -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+          -backend-config="key=multi-hosting/terraform.tfstate" \
+          -backend-config="region=eu-central-1" \
+          -backend-config="encrypt=true" \
+          -backend-config="dynamodb_table=terraform-locks-multi-hosting"
+        echo "s3_bucket=$(terraform output -raw s3_content_bucket_name)" >> $GITHUB_OUTPUT
+        echo "cloudfront_distribution=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
 
     - name: Validate Site Structure
       run: |

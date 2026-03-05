@@ -42,6 +42,27 @@ resource "aws_wafv2_web_acl" "rate_limit" {
   }
 }
 
+resource "aws_cloudfront_function" "path_rewriter" {
+  name    = "PathRewriter"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrites URI to host-based prefix and resolves directory index documents"
+  publish = true
+  code    = <<-EOT
+    function handler(event) {
+      var request = event.request;
+      var host = request.headers.host.value;
+      var uri = request.uri;
+
+      if (uri.endsWith('/')) {
+        uri = uri + 'index.html';
+      }
+
+      request.uri = '/' + host + uri;
+      return request;
+    }
+  EOT
+}
+
 resource "aws_cloudfront_origin_access_control" "oac" {
   name                              = "${var.bucket_name}-OAC"
   description                       = "Origin Access Control for ${var.bucket_name}"
@@ -74,6 +95,11 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimised
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # None (no headers/cookies/query strings)
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.path_rewriter.arn
+    }
   }
 
   # Additional cache behaviors for other sites
@@ -88,6 +114,11 @@ resource "aws_cloudfront_distribution" "distribution" {
       viewer_protocol_policy   = "redirect-to-https"
       cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimised
       origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # None (no headers/cookies/query strings)
+
+      function_association {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.path_rewriter.arn
+      }
     }
   }
 
