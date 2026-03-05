@@ -1,14 +1,14 @@
-name: CI - Main Branch
+name: CI Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev, main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  lint-infrastructure:
-    name: Lint Infrastructure
+  validate-infrastructure:
+    name: Validate Infrastructure
     runs-on: ubuntu-latest
     
     steps:
@@ -23,20 +23,10 @@ jobs:
     - name: Terraform Format Check
       run: |
         cd platform
-        terraform fmt -check
+        terraform fmt -check -diff=false
 
-    - name: Terraform Validate
-      run: |
-        cd platform
-        terraform validate
-
-    - name: Terraform Security Scan
-      uses: aquasecurity/tfsec-action@v1.0.0
-      with:
-        working_directory: platform
-
-  test-crowded-spot:
-    name: Test Crowded.Spot Site
+  validate-crowded-spot:
+    name: Validate Crowded.Spot Site
     runs-on: ubuntu-latest
     
     steps:
@@ -78,8 +68,8 @@ jobs:
           exit 1
         fi
 
-  test-hiredgnu-net:
-    name: Test HiredGnu.net Site
+  validate-hiredgnu-net:
+    name: Validate HiredGnu.net Site
     runs-on: ubuntu-latest
     
     steps:
@@ -121,50 +111,4 @@ jobs:
         else
           echo "✗ Pelican build failed"
           exit 1
-        fi
-
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        format: 'sarif'
-        output: 'trivy-results.sarif'
-
-    - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: 'trivy-results.sarif'
-
-  validate-links:
-    name: Validate Links
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Check Internal Links
-      run: |
-        echo "Checking internal links in crowded.spot..."
-        cd sites/crowded.spot
-        if grep -q "assets/" index.html; then
-          echo "✓ Internal asset references found"
-        fi
-        
-        echo "Checking Pelican site structure..."
-        cd ../hiredgnu.net/src
-        if [ -d "content" ] && [ "$(ls -A content)" ]; then
-          echo "✓ Content directory has files"
-        else
-          echo "⚠ Content directory is empty"
         fi

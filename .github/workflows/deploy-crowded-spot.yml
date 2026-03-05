@@ -18,7 +18,7 @@ on:
         - prod
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: eu-central-1
   SITE_NAME: crowded.spot
 
 jobs:
