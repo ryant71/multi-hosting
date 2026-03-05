@@ -42,13 +42,18 @@ resource "aws_wafv2_web_acl" "rate_limit" {
   }
 }
 
+resource "time_sleep" "wait_for_iam_propagation" {
+  depends_on      = [aws_iam_policy.github_actions]
+  create_duration = "20s"
+}
+
 resource "aws_cloudfront_function" "path_rewriter" {
   name    = "PathRewriter"
   runtime = "cloudfront-js-2.0"
   comment = "Rewrites URI to host-based prefix and resolves directory index documents"
   publish = true
 
-  depends_on = [aws_iam_policy.github_actions]
+  depends_on = [time_sleep.wait_for_iam_propagation]
 
   code    = <<-EOT
     function handler(event) {
