@@ -100,6 +100,9 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Deploy Crowded.Spot
+      env:
+        S3_BUCKET: ${{ needs.infrastructure.outputs.s3_bucket }}
+        DISTRIBUTION_ID: ${{ needs.infrastructure.outputs.cloudfront_distribution }}
       run: |
         cd sites/crowded.spot
         ./deploy.sh
@@ -135,6 +138,9 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Deploy HiredGnu.net
+      env:
+        S3_BUCKET: ${{ needs.infrastructure.outputs.s3_bucket }}
+        DISTRIBUTION_ID: ${{ needs.infrastructure.outputs.cloudfront_distribution }}
       run: |
         cd sites/hiredgnu.net
         ./deploy.sh
