@@ -8,6 +8,9 @@ jobs:
   deploy-all:
     name: Full Deployment
     uses: ./.github/workflows/deploy-all-reusable.yml
+    permissions:
+      contents: read
+      id-token: write
     with:
       deploy_infrastructure: true
       deploy_sites: 'all'
