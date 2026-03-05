@@ -7,8 +7,8 @@ set -e
 
 # Configuration
 SITE_NAME="hiredgnu.net"
-S3_BUCKET=""  # Will be set from terraform output or environment variable
-DISTRIBUTION_ID=""  # Will be set from terraform output or environment variable
+S3_BUCKET="${S3_BUCKET:-}"
+DISTRIBUTION_ID="${DISTRIBUTION_ID:-}"
 SRC_DIR="src"
 OUTPUT_DIR="output"
 

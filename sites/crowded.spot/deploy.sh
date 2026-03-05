@@ -7,8 +7,8 @@ set -e
 
 # Configuration - Update these values
 SITE_NAME="crowded.spot"
-S3_BUCKET=""  # Will be set from terraform output or environment variable
-DISTRIBUTION_ID=""  # Will be set from terraform output or environment variable
+S3_BUCKET="${S3_BUCKET:-}"
+DISTRIBUTION_ID="${DISTRIBUTION_ID:-}"
 
 # Colors for output
 RED='\033[0;31m'
