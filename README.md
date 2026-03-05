@@ -133,6 +133,14 @@ s3-bucket/
    - AWS controls feature releases
    - Less community-driven development
 
+## The Real Reason for Terraform
+
+Honestly? The primary motivation for using Terraform here was to get hands-on experience with it — to overcome a healthy fear of what some might call **Terror Farm**.
+
+![Terror Farm](doc/terror-farm.webp)
+
+It turns out that fear was not entirely unfounded.
+
 ## Deployment Process
 
 ### 1. Infrastructure Deployment
