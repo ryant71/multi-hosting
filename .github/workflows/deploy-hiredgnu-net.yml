@@ -38,8 +38,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        submodules: true
+
+    - name: Fetch submodules
+      run: git submodule update --init sites/hiredgnu.net/themes/pelican-simplegrey
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -178,8 +179,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        submodules: true
+
+    - name: Fetch submodules
+      run: git submodule update --init sites/hiredgnu.net/themes/pelican-simplegrey
 
     - name: Setup Python
       uses: actions/setup-python@v4
