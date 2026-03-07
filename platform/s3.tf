@@ -55,7 +55,7 @@ resource "aws_cloudfront_function" "path_rewriter" {
 
   depends_on = [time_sleep.wait_for_iam_propagation]
 
-  code    = <<-EOT
+  code = <<-EOT
     function handler(event) {
       var request = event.request;
       var host = request.headers.host.value;

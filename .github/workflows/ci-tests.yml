@@ -33,6 +33,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Fetch submodules
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git config submodule.sites/crowded.spot.url "https://x-access-token:${GH_PAT}@github.com/ryant71/crowded.spot.git"
+        git submodule update --init sites/crowded.spot
+
     - name: Validate HTML
       run: |
         cd sites/crowded.spot
