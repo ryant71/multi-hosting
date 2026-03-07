@@ -244,6 +244,14 @@ resource "aws_iam_policy" "github_actions" {
           "arn:aws:route53:::hostedzone/${zone_id}"
         ]
       },
+      {
+        Sid    = "Route53Changes"
+        Effect = "Allow"
+        Action = [
+          "route53:GetChange",
+        ]
+        Resource = ["arn:aws:route53:::change/*"]
+      },
       # -----------------------------------------------------------------------
       # ACM
       # -----------------------------------------------------------------------
