@@ -23,5 +23,11 @@ websites = [
     domain_name = "crowded.spot"
     path_prefix = "crowded.spot"
     zone_id     = "Z07783278IYDDVTZ4SXP" # Route53 hosted zone ID for crowded.spot
+  },
+  {
+    fqdn        = "clicken.click"
+    domain_name = "clicken.click"
+    path_prefix = "clicken.click"
+    zone_id     = "Z01082082AFVXC83G7YSA" # Route53 hosted zone ID for clicken.click
   }
 ]
