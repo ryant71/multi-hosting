@@ -1,3 +1,6 @@
 [submodule "sites/hiredgnu.net/themes/pelican-simplegrey"]
 	path = sites/hiredgnu.net/themes/pelican-simplegrey
 	url = git@github.com:ryant71/pelican-simplegrey.git
+[submodule "sites/crowded.spot"]
+	path = sites/crowded.spot
+	url = git@github.com:ryant71/crowded.spot.git
