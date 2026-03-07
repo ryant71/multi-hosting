@@ -2,7 +2,7 @@ PLATFORM_DIR := platform
 
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap init plan apply destroy fmt validate outputs secrets unlock
+.PHONY: help bootstrap init plan apply destroy fmt validate outputs secrets unlock submodule-update submodule-update-crowded-spot
 
 help:
 	@echo ""
@@ -17,7 +17,9 @@ help:
 	@echo "  validate    terraform validate"
 	@echo "  outputs     show terraform outputs"
 	@echo "  secrets     sync GitHub Actions secrets from terraform outputs"
-	@echo "  unlock      force-unlock stuck state  (usage: make unlock LOCK_ID=<id>)"
+	@echo "  unlock                      force-unlock stuck state  (usage: make unlock LOCK_ID=<id>)"
+	@echo "  submodule-update            pull latest commit for all submodules and stage the pointer update"
+	@echo "  submodule-update-crowded-spot  pull latest commit for sites/crowded.spot only"
 	@echo ""
 
 bootstrap:
@@ -56,3 +58,13 @@ secrets:
 unlock:
 	@test -n "$(LOCK_ID)" || (echo "Error: usage: make unlock LOCK_ID=<id>" && exit 1)
 	cd $(PLATFORM_DIR) && terraform force-unlock $(LOCK_ID)
+
+submodule-update:
+	git submodule update --remote
+	git add sites/
+	@echo "Submodule pointer(s) staged. Review with 'git diff --cached' then commit and push."
+
+submodule-update-crowded-spot:
+	git submodule update --remote sites/crowded.spot
+	git add sites/crowded.spot
+	@echo "crowded.spot submodule pointer staged. Review with 'git diff --cached' then commit and push."
