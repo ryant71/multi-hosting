@@ -9,7 +9,7 @@ on:
         type: boolean
         default: true
       deploy_sites:
-        description: 'Sites to deploy (all, crowded.spot, hiredgnu.net, or comma-separated)'
+        description: 'Sites to deploy (all, crowded.spot, hiredgnu.net, clicken.click, or comma-separated)'
         required: false
         type: string
         default: 'all'
@@ -113,6 +113,39 @@ jobs:
           --distribution-id "${{ needs.infrastructure.outputs.cloudfront_distribution }}" \
           --paths "/crowded.spot/*"
 
+  deploy-clicken-click:
+    name: Deploy Clicken.Click
+    runs-on: ubuntu-latest
+    needs: infrastructure
+    if: inputs.deploy_sites == 'all' || contains(inputs.deploy_sites, 'clicken.click')
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy Clicken.Click
+      env:
+        S3_BUCKET: ${{ needs.infrastructure.outputs.s3_bucket }}
+        DISTRIBUTION_ID: ${{ needs.infrastructure.outputs.cloudfront_distribution }}
+      run: |
+        cd sites/clicken.click
+        ./deploy.sh
+
+    - name: Invalidate CloudFront
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id "${{ needs.infrastructure.outputs.cloudfront_distribution }}" \
+          --paths "/clicken.click/*"
+
   deploy-hiredgnu-net:
     name: Deploy HiredGnu.net
     runs-on: ubuntu-latest
@@ -154,7 +187,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [infrastructure, deploy-crowded-spot, deploy-hiredgnu-net]
+    needs: [infrastructure, deploy-crowded-spot, deploy-clicken-click, deploy-hiredgnu-net]
     if: always()
     
     steps:
@@ -164,6 +197,7 @@ jobs:
         echo ""
         echo "Infrastructure: ${{ needs.infrastructure.result }}"
         echo "Crowded.Spot: ${{ needs.deploy-crowded-spot.result }}"
+        echo "Clicken.Click: ${{ needs.deploy-clicken-click.result }}"
         echo "Hiredgnu.net: ${{ needs.deploy-hiredgnu-net.result }}"
         echo ""
         if [ "${{ needs.infrastructure.result }}" == "success" ]; then
@@ -173,4 +207,5 @@ jobs:
         echo ""
         echo "🌐 Sites available at:"
         echo "  - https://crowded.spot"
+        echo "  - https://clicken.click"
         echo "  - https://hiredgnu.net"
