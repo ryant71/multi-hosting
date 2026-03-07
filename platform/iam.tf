@@ -255,6 +255,9 @@ resource "aws_iam_policy" "github_actions" {
           "acm:GetCertificate",
           "acm:ListCertificates",
           "acm:ListTagsForCertificate",
+          "acm:RequestCertificate",
+          "acm:DeleteCertificate",
+          "acm:AddTagsToCertificate",
         ]
         Resource = ["*"]
       },
