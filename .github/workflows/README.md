@@ -23,16 +23,7 @@ This directory contains the GitHub Actions workflows for automated deployment an
   - Output sharing with other workflows
   - PR previews with plan summaries
 
-### 3. `deploy-crowded-spot.yml` - Static Site Deployment
-- **Triggers**: Push to sites/crowded.spot/, manual dispatch
-- **Purpose**: Deploy simple static site
-- **Features**:
-  - Direct S3 sync
-  - CloudFront cache invalidation
-  - Deployment verification
-  - PR previews
-
-### 4. `deploy-hiredgnu-net.yml` - Pelican Site Deployment
+### 3. `deploy-hiredgnu-net.yml` - Pelican Site Deployment
 - **Triggers**: Push to sites/hiredgnu.net/, manual dispatch
 - **Purpose**: Build and deploy Pelican-generated site
 - **Features**:
@@ -42,7 +33,7 @@ This directory contains the GitHub Actions workflows for automated deployment an
   - S3 sync with cache headers
   - CloudFront invalidation
 
-### 5. `deploy-all.yml` - Full Deployment
+### 4. `deploy-all.yml` - Full Deployment
 - **Triggers**: Push affecting multiple components, manual dispatch
 - **Purpose**: Deploy infrastructure and all sites
 - **Features**:
@@ -102,14 +93,6 @@ git commit -m "Update infrastructure"
 git push main
 ```
 
-### Deploy Single Site
-```bash
-# Push to specific site directory
-git add sites/crowded.spot/
-git commit -m "Update crowded.spot"
-git push main
-```
-
 ### Manual Full Deployment
 1. Go to Actions tab in GitHub
 2. Select "Deploy All Sites" workflow
@@ -129,7 +112,7 @@ Create a pull request to see:
 deploy-all.yml
 ├── infrastructure (job)
 │   └── outputs → s3_bucket, cloudfront_distribution
-├── deploy-crowded-spot (depends on infrastructure)
+├── deploy-clicken-click (depends on infrastructure)
 └── deploy-hiredgnu-net (depends on infrastructure)
 ```
 

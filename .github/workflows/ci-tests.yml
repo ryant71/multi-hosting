@@ -25,56 +25,6 @@ jobs:
         cd platform
         terraform fmt -check -diff=false
 
-  validate-crowded-spot:
-    name: Validate Crowded.Spot Site
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Fetch submodules
-      env:
-        GH_PAT: ${{ secrets.GH_PAT }}
-      run: |
-        git config submodule.sites/crowded.spot.url "https://x-access-token:${GH_PAT}@github.com/ryant71/crowded.spot.git"
-        git submodule update --init sites/crowded.spot
-
-    - name: Validate HTML
-      run: |
-        cd sites/crowded.spot
-        if [ -f "index.html" ]; then
-          echo "✓ index.html exists"
-        else
-          echo "✗ index.html missing"
-          exit 1
-        fi
-        
-        # Basic HTML validation
-        if grep -q "<!DOCTYPE html>" index.html; then
-          echo "✓ HTML doctype found"
-        else
-          echo "✗ HTML doctype missing"
-          exit 1
-        fi
-
-    - name: Check CSS and JS
-      run: |
-        cd sites/crowded.spot
-        if [ -f "assets/css/style.css" ]; then
-          echo "✓ CSS file exists"
-        else
-          echo "✗ CSS file missing"
-          exit 1
-        fi
-        
-        if [ -f "assets/js/main.js" ]; then
-          echo "✓ JS file exists"
-        else
-          echo "✗ JS file missing"
-          exit 1
-        fi
-
   validate-hiredgnu-net:
     name: Validate HiredGnu.net Site
     runs-on: ubuntu-latest
