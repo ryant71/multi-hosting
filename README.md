@@ -10,7 +10,6 @@ This project uses a **single infrastructure stack** to host multiple static webs
 multi-hosting/
 ├── platform/           # Terraform infrastructure (IaC)
 ├── sites/              # Website content repositories
-│   ├── crowded.spot/   # Simple static site
 │   └── hiredgnu.net/   # Pelican-generated blog
 └── README.md           # This file
 ```
@@ -27,20 +26,12 @@ multi-hosting/
 **S3 Bucket Structure:**
 ```
 s3-bucket/
-├── crowded.spot/
-│   ├── index.html
-│   └── assets/
 └── hiredgnu.net/
     ├── index.html
     └── assets/
 ```
 
 ## Site Types Supported
-
-### Simple Static Sites (`crowded.spot`)
-- Direct HTML/CSS/JS files
-- No build process required
-- Simple deployment script
 
 ### Generated Sites (`hiredgnu.net`)
 - Pelican static site generator
@@ -153,12 +144,6 @@ terraform apply
 
 ### 2. Site Deployment
 
-#### Simple Static Site (crowded.spot)
-```bash
-cd sites/crowded.spot/
-./deploy.sh
-```
-
 #### Pelican Site (hiredgnu.net)
 ```bash
 cd sites/hiredgnu.net/
@@ -174,11 +159,6 @@ bucket_name    = "your-multi-site-bucket"
 hosted_zone_id = "Z1EXAMPLE123456"
 
 websites = [
-  {
-    fqdn        = "crowded.spot"
-    domain_name = "crowded.spot"
-    path_prefix = "crowded.spot"
-  },
   {
     fqdn        = "hiredgnu.net"
     domain_name = "hiredgnu.net"
