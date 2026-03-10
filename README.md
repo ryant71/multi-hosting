@@ -11,6 +11,10 @@ multi-hosting/
 ├── platform/           # Terraform infrastructure (IaC)
 ├── sites/              # Website content repositories
 │   └── hiredgnu.net/   # Pelican-generated blog
+│   └── clicken.click/  # Static site
+│   └── .../            # Static site
+│   └── .../            # Static site
+│   └── .../            # Static site
 └── README.md           # This file
 ```
 
