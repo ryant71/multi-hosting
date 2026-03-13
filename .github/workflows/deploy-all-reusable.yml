@@ -126,6 +126,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Fetch submodules
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git config submodule.sites/hiredgnu.net/themes/pelican-simplegrey.url "https://x-access-token:${GH_PAT}@github.com/ryant71/pelican-simplegrey.git"
+        git submodule update --init sites/hiredgnu.net/themes/pelican-simplegrey
+
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
